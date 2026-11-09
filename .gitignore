@@ -1,0 +1,19 @@
+﻿# .NET build output
+**/bin/
+**/obj/
+
+# Node.js
+**/node_modules/
+**/dist/
+**/coverage/
+
+# Environment and secrets
+.env
+**/.env
+**/.env.*
+!**/.env.example
+
+# IDE and temporary files
+.vs/
+*.user
+*.tmp
