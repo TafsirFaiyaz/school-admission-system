@@ -1,21 +1,35 @@
+
+using Microsoft.EntityFrameworkCore;
+using SchoolAdmission.Api.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// Register API controllers.
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+// Register OpenAPI documentation.
 builder.Services.AddOpenApi();
+
+// Read the PostgreSQL connection string.
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "Database connection string is missing.");
+
+// Register Entity Framework Core with PostgreSQL.
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Enable OpenAPI in development.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-app.UseAuthorization();
-
+// Map controller endpoints.
 app.MapControllers();
 
+// Start the application.
 app.Run();
