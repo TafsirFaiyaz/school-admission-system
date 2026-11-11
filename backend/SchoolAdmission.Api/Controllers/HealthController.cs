@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SchoolAdmission.Api.Data;
@@ -7,43 +6,16 @@ namespace SchoolAdmission.Api.Controllers;
 
 [ApiController]
 [Route("health")]
-public class HealthController : ControllerBase
+public class HealthController(AppDbContext db) : ControllerBase
 {
-    private readonly AppDbContext _db;
-
-    public HealthController(AppDbContext db)
-    {
-        _db = db;
-    }
-
     [HttpGet]
-    public IActionResult Get()
-    {
-        return Ok(new
-        {
-            status = "Healthy",
-            service = "SchoolAdmission.Api"
-        });
-    }
+    public IActionResult Get() => Ok(new { status = "Healthy", service = "SchoolAdmission.Api" });
 
     [HttpGet("db")]
-    public async Task<IActionResult> GetDatabaseStatus()
+    public async Task<IActionResult> DatabaseStatus()
     {
-        bool connected = await _db.Database.CanConnectAsync();
-
-        if (!connected)
-        {
-            return StatusCode(503, new
-            {
-                status = "Unhealthy",
-                database = "Disconnected"
-            });
-        }
-
-        return Ok(new
-        {
-            status = "Healthy",
-            database = "Connected"
-        });
+        bool connected = await db.Database.CanConnectAsync();
+        return connected ? Ok(new { status = "Healthy", database = "Connected" })
+            : StatusCode(503, new { status = "Unhealthy", database = "Disconnected" });
     }
 }

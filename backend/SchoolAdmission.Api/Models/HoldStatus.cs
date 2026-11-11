@@ -1,10 +1,2 @@
-
 namespace SchoolAdmission.Api.Models;
-
-public enum HoldStatus
-{
-    Held,
-    Confirmed,
-    Expired,
-    Cancelled
-}
+public enum HoldStatus { Held, Confirmed, Expired, Cancelled }

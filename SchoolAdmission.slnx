@@ -1,5 +1,4 @@
 <Solution>
-  <Folder Name="/backend/">
-    <Project Path="backend/SchoolAdmission.Api/SchoolAdmission.Api.csproj" />
-  </Folder>
+  <Project Path="backend/SchoolAdmission.Api/SchoolAdmission.Api.csproj" />
+  <Project Path="tests/SchoolAdmission.Tests/SchoolAdmission.Tests.csproj" />
 </Solution>
