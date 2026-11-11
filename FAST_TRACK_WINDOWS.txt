@@ -1,0 +1,51 @@
+FAST TRACK (Windows PowerShell)
+===============================
+
+1. Back up your existing project before replacing anything. Do not delete .git.
+2. Extract this ZIP to a separate folder, e.g. Downloads\SchoolAdmission_FastTrack.
+3. Open PowerShell, cd into your existing Git project:
+   cd "C:\Users\Tafsir\Downloads\Projects\school_admission_system"
+4. Preserve existing uncommitted progress (if applicable):
+   git add -A
+   git commit -m "chore: save earlier implementation progress"
+   (If Git says nothing to commit, continue.)
+5. Back up old source outside the Git repository:
+   Copy-Item .\backend ..\school_backend_backup -Recurse -Force
+   Copy-Item .\frontend ..\school_frontend_backup -Recurse -Force
+6. Replace backend and frontend entirely (do not copy on top of old migrations):
+   Remove-Item .\backend -Recurse -Force
+   Remove-Item .\frontend -Recurse -Force
+7. Copy this package's files into the existing project, leaving .git untouched:
+   Copy-Item "C:\Users\Tafsir\Downloads\SchoolAdmission_FastTrack\*" . -Recurse -Force
+   (Change the extracted folder path if needed.)
+8. Commit logical components after all files are copied:
+   git add -A backend
+   git commit -m "feat: complete admission backend with concurrency and expiry"
+   git add -A frontend
+   git commit -m "feat: implement React admission and admin interface"
+   git add -A tests
+   git commit -m "test: add automated backend integration and concurrency tests"
+   git add -A
+   git commit -m "chore: add Docker Compose and submission documentation"
+9. Build everything:
+   docker compose up --build -d
+   docker compose ps
+   Invoke-RestMethod http://localhost:8080/health/db
+10. Open http://localhost:5173 and test the UI.
+11. Run automated tests:
+    docker compose run --build --rm tests
+12. Make any required fixes, re-build, and commit fixes accurately:
+    git add -A
+    git commit -m "fix: address issues found during local verification"
+13. Push to the existing public GitHub repository (after setting a remote):
+    git branch -M main
+    git remote -v
+    git push -u origin main
+14. Submit the public repository URL using the employer's official submission link.
+
+IMPORTANT:
+- Git commits should reflect your real changes. Don't claim testing if tests failed.
+- Do not commit the assignment PDF or passwords/tokens.
+- If your previous PostgreSQL Docker volume has incompatible experimental schema,
+  back it up before creating a fresh database. Do not run `docker compose down -v`
+  casually: it deletes named database volumes.
