@@ -1,0 +1,52 @@
+SCHOOL ADMISSION - APPLY / ID / CLASS LIST FIX
+================================================
+
+This ZIP is an incremental patch. Do NOT delete your existing project,
+.git folder, Docker volumes, or database.
+
+1. Download SchoolAdmission_UI_Flow_Fix.zip to your Downloads folder.
+2. Open PowerShell:
+
+   cd "C:\Users\Tafsir\Downloads\Projects\school_admission_system"
+   git status
+
+   # If you have other unfinished changes, save them before replacing files:
+   git add -A
+   git commit -m "chore: save work before admission UI update"
+   # If there is nothing to commit, ignore that message.
+
+3. Apply the patch IN PLACE, preserving all other files:
+
+   Expand-Archive -LiteralPath "$HOME\Downloads\SchoolAdmission_UI_Flow_Fix.zip" -DestinationPath . -Force
+
+4. Rebuild only the frontend (no database reset):
+
+   docker compose up --build -d --force-recreate frontend
+
+5. Open http://localhost:5173 and press Ctrl+Shift+R.
+   Browse classes > Apply now > enter 17-digit birth registration number
+   > Reserve seat & continue > Pay admission fee (simulate).
+
+6. Check direct/proxied class list consistency:
+
+   .\CHECK_CONNECTION.ps1
+
+7. Run backend API integration tests (requires Docker engine running):
+
+   docker compose run --build --rm tests
+
+8. Commit the verified changes:
+
+   git add frontend/src/App.tsx frontend/src/styles.css frontend/src/api.ts tests/SchoolAdmission.Tests/AdmissionApiTests.cs CHECK_CONNECTION.ps1 README.md ASSUMPTIONS.md AI_USAGE.md PATCH_INSTRUCTIONS_WINDOWS.txt SUBMISSION_CHECKLIST.md
+   git commit -m "fix: improve admission apply flow and class sync diagnostics"
+   git push origin main
+
+If docker compose frontend rebuild fails:
+   docker compose logs --tail=80 frontend
+
+If class lists disagree, compare:
+   http://localhost:8080/classes
+   http://localhost:5173/backend/classes
+   and run .\CHECK_CONNECTION.ps1.
+
+Do not use 'docker compose down -v': it deletes the named PostgreSQL volume.

@@ -18,6 +18,7 @@ export async function request<T>(path: string, options: {
   method?: string; studentId?: string; body?: unknown;
 } = {}): Promise<T> {
   const response = await fetch(`${baseUrl}${path}`, {
+    cache: 'no-store', // avoid showing stale seat counts or application status
     method: options.method || 'GET',
     headers: {
       ...(options.body !== undefined ? { 'Content-Type': 'application/json' } : {}),

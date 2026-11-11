@@ -58,6 +58,44 @@ public class AdmissionApiTests
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Theory]
+    [InlineData("1234567890123456")]
+    [InlineData("123456789012345678")]
+    [InlineData("1234567890123456A")]
+    [InlineData("1234567890")]
+    public async Task StudentIdMustHaveExactly17Digits(string invalidId)
+    {
+        string id = await CreateClassAsync(1);
+        using var create = await HoldAsync(id, invalidId);
+        Assert.Equal(HttpStatusCode.BadRequest, create.StatusCode);
+        Assert.Equal(1, await GetCountAsync(id, "availableSeats"));
+    }
+
+    [Fact]
+    public async Task ClassListAndStudentApplicationReferenceTheSameClass()
+    {
+        string classId = await CreateClassAsync(2);
+        string student = Student(44);
+        using var create = await HoldAsync(classId, student);
+        Assert.Equal(HttpStatusCode.Created, create.StatusCode);
+
+        using var classesResponse = await Client.GetAsync("/classes");
+        Assert.Equal(HttpStatusCode.OK, classesResponse.StatusCode);
+        using var classDoc = JsonDocument.Parse(await classesResponse.Content.ReadAsStringAsync());
+        bool listed = classDoc.RootElement.EnumerateArray()
+            .Any(c => c.GetProperty("id").GetString() == classId);
+        Assert.True(listed, "The class must remain present in GET /classes.");
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/me/holds");
+        request.Headers.Add("X-Student-Id", student);
+        using var holdsResponse = await Client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.OK, holdsResponse.StatusCode);
+        using var holdDoc = JsonDocument.Parse(await holdsResponse.Content.ReadAsStringAsync());
+        bool found = holdDoc.RootElement.EnumerateArray()
+            .Any(h => h.GetProperty("classId").GetString() == classId);
+        Assert.True(found, "The student's application must reference the same class.");
+    }
+
     [Fact]
     public async Task SameStudentCannotHoldTwoSeatsInSameClass()
     {

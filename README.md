@@ -49,16 +49,33 @@ Changing `VITE_API_BASE_URL` requires a frontend rebuild (`docker compose up --b
 
 ## How to use the UI
 
-1. Open http://localhost:5173 and choose **School admin**.
-2. Add `Class 6 - Morning Shift` with `120` seats (or a smaller class to test capacity).
-3. Enter a 17-digit student birth registration number in the top field.
-4. Open **Browse classes** and select **Apply now**.
-5. The new reservation appears in **My applications**, with the remaining time.
-6. Choose **Pay admission fee (simulate)** to confirm, or **Cancel hold** to release it.
-7. Refresh or reopen the page; your student ID is saved locally and application records reload from the database.
-8. Try another student ID when testing competing requests.
+1. Start at http://localhost:5173. The top birth registration field is a compact **optional lookup** while browsing, as required by the assignment.
+2. Go to **School admin**, then create `Class 6 - Morning Shift` with `120` seats (or a smaller class for testing).
+3. Return to **Browse classes**. The **Apply now** button works even when the top student field is empty.
+4. Click **Apply now**. A dialog asks for the student's **existing 17-digit birth registration number**. IDs shorter/longer than 17 digits or containing non-numeric characters must not reach the backend as valid IDs.
+5. Click **Reserve seat & continue**. The API creates a hold and the UI opens **My applications** with the countdown and payment/cancellation actions.
+6. Choose **Pay admission fee (simulate)** to confirm, or **Cancel hold** to release the seat.
+7. Refresh or reopen the page; the selected student ID is kept locally and application records reload from the database. The user can also change the top student ID for another student's history.
 
-There is intentionally **no login** and **no real payment gateway**. The assignment requires student identity via `X-Student-Id` and simulated successful payment.
+There is **no student registration form, login, or real payment gateway**. The assignment requires identity through `X-Student-Id` and simulated payment.
+
+### Diagnose differing class lists
+
+The React app uses `/backend/classes` through its Nginx proxy; directly browsing `http://localhost:8080/classes` accesses the API host port. They should both return the same classes when started by this Docker Compose project.
+
+Run this from the repository root on Windows:
+
+```powershell
+.\CHECK_CONNECTION.ps1
+```
+
+The script reads both endpoints, compares class IDs, and checks database row counts without changing records. Optionally enter a student's 17-digit ID to check whether every application refers to a listed class. If the class lists differ, check for another process using port 8080, an overridden `VITE_API_BASE_URL`, or an outdated frontend/API container; rebuild both services:
+
+```powershell
+docker compose up --build -d --force-recreate api frontend
+```
+
+Then hard-refresh the browser with Ctrl+Shift+R. **Do not delete the PostgreSQL volume** merely to fix a display discrepancy.
 
 ## API contract (exact mandatory routes)
 
